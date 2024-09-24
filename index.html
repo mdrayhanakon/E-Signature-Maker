@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Signature Maker</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+
+    <!-- Style CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f3f6f9;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main {
+            text-align: center;
+            padding: 40px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            border-radius: 20px;
+            transition: transform 0.3s ease-in-out;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .main:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        #signature-pad {
+            margin: 20px 0;
+            border: 2px dashed #d3d3d3;
+            border-radius: 10px;
+            background-color: #fafafa;
+            transition: border-color 0.3s;
+        }
+
+        #signature-pad:hover {
+            border-color: #000;
+        }
+
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            width: 140px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #4caf50;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #clear-button {
+            background-color: #ff4757;
+        }
+
+        #clear-button:hover {
+            background-color: #e84141;
+        }
+
+        #undo-button {
+            background-color: #1e90ff;
+        }
+
+        #undo-button:hover {
+            background-color: #1c86ee;
+        }
+
+        #download-button {
+            background-color: #2ed573;
+        }
+
+        #download-button:hover {
+            background-color: #28d165;
+        }
+
+        @media (max-width: 500px) {
+            .main {
+                padding: 20px;
+            }
+
+            button {
+                width: 100px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main">
+        <h1>E-Signature Maker</h1>
+
+        <canvas id="signature-pad" width="400" height="200"></canvas>
+
+        <div class="button-group">
+            <button id="clear-button">Clear</button>
+            <button id="undo-button">Undo</button>
+            <button id="download-button">Download</button>
+        </div>
+    </div>
+
+    <!-- Script JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var canvas = document.getElementById('signature-pad');
+            var ctx = canvas.getContext('2d');
+            var drawing = false;
+            var strokes = [];
+
+            canvas.addEventListener('mousedown', function (e) {
+                drawing = true;
+                ctx.beginPath();
+                ctx.moveTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+            });
+
+            canvas.addEventListener('mousemove', function (e) {
+                if (drawing) {
+                    ctx.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+                    ctx.stroke();
+                }
+            });
+
+            canvas.addEventListener('mouseup', function () {
+                if (drawing) {
+                    drawing = false;
+                    strokes.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                }
+            });
+
+            document.getElementById('clear-button').addEventListener('click', function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                strokes = [];
+            });
+
+            document.getElementById('undo-button').addEventListener('click', function () {
+                if (strokes.length > 0) {
+                    ctx.putImageData(strokes.pop(), 0, 0);
+                }
+            });
+
+            document.getElementById('download-button').addEventListener('click', function () {
+                var dataURL = canvas.toDataURL("image/png");
+                var link = document.createElement('a');
+                link.href = dataURL;
+                link.download = 'signature.png';
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>
